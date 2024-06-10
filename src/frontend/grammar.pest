@@ -1,0 +1,23 @@
+// Start production
+tx_list = _{ tx{1, } }
+
+// Non-terminals
+tx = {
+    value ~ WHITESPACE* ~ target ~ WHITESPACE* ~ chain ~ SEMI ~ NEW_LINE*
+}
+value  = { "send" ~ WHITESPACE* ~ number ~ WHITESPACE* ~ unit }
+target = { "to" ~ WHITESPACE* ~ address }
+chain  = { "on" ~ WHITESPACE* ~ available_chains }
+
+// Terminals
+unit             = { "ether" | "gwei" | "wei" }
+address          = { "0x" ~ (ASCII_HEX_DIGIT){40} | (ASCII_ALPHANUMERIC)+ ~ ".eth" }
+number           = { float | integer }
+integer          = { (ASCII_DIGIT)+ }
+float            = { integer ~ "." ~ integer }
+available_chains = { "eth" | "arb" | "op" | "base" | "blast" }
+
+// Helpers
+WHITESPACE = _{ " " }
+SEMI       = ";"
+NEW_LINE   = "\n"
