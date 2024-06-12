@@ -1,13 +1,14 @@
 // Start production
+// A valid production:
 tx_list = _{ tx{1, } }
 
 // Non-terminals
-tx = {
-    value ~ WHITESPACE* ~ target ~ WHITESPACE* ~ chain ~ SEMI ~ NEW_LINE*
+tx     = {
+    value ~ WHITESPACE* ~ target ~ WHITESPACE* ~ chain ~ NEW_LINE*
 }
-value  = { "send" ~ WHITESPACE* ~ number ~ WHITESPACE* ~ unit }
-target = { "to" ~ WHITESPACE* ~ address }
-chain  = { "on" ~ WHITESPACE* ~ available_chains }
+value  = _{ "send" ~ WHITESPACE* ~ number ~ WHITESPACE* ~ unit }
+target = _{ "to" ~ WHITESPACE* ~ address }
+chain  = _{ "on" ~ WHITESPACE* ~ available_chains }
 
 // Terminals
 unit             = { "ether" | "gwei" | "wei" }
@@ -19,5 +20,4 @@ available_chains = { "eth" | "arb" | "op" | "base" | "blast" }
 
 // Helpers
 WHITESPACE = _{ " " }
-SEMI       = ";"
-NEW_LINE   = "\n"
+NEW_LINE   = _{ "\n" }
