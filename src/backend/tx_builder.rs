@@ -3,10 +3,10 @@ use crate::frontend::parser::TransactionIR;
 use ethers::core::utils::{parse_units, ParseUnits};
 
 /// TODO: docs
-struct TransactionBuilder;
+pub struct TransactionBuilder;
 
 impl TransactionBuilder {
-    fn build(parser: Vec<TransactionIR>) -> Vec<PreparedTransaction> {
+    pub fn build(parser: Vec<TransactionIR>) -> Vec<PreparedTransaction> {
         let mut prepared_txs = Vec::new();
 
         for tx in parser {
@@ -35,18 +35,19 @@ mod test {
     use crate::common::{chain::Chain, unit::Unit};
     use ethers::types::{Address, U256};
 
+    const ADDRESS: &'static str = "0xadcdf1cc67362d0d61ad8954d077b78a1d80087b";
+
     #[test]
     fn test_build_single_tx() {
         let tx_ir = vec![TransactionIR {
-            to: Address::from_slice(b"adcdf1cc67362d0d61ad8954d077b78a1d80087b"),
+            to: ADDRESS.parse::<Address>().unwrap(),
             amount: String::from("1"),
             unit: Unit::Ether,
             chain: Chain::Ethereum,
         }];
         let expected_tx = PreparedTransaction {
-            to: Address::from_slice(b"adcdf1cc67362d0d61ad8954d077b78a1d80087b"),
-            value: U256::from_dec_str("1000000000000000000")
-                .expect("===========> Error parsing U256"),
+            to: ADDRESS.parse::<Address>().unwrap(),
+            value: U256::from_dec_str("1000000000000000000").unwrap(),
             chain: Chain::Ethereum,
         };
         let prepared_tx = TransactionBuilder::build(tx_ir);
@@ -58,7 +59,7 @@ mod test {
     #[test]
     fn test_tx_with_decimal_value() {
         let tx_ir = vec![TransactionIR {
-            to: Address::from_slice(b"adcdf1cc67362d0d61ad8954d077b78a1d80087b"),
+            to: ADDRESS.parse::<Address>().unwrap(),
             amount: String::from("1.0"),
             unit: Unit::Ether,
             chain: Chain::Ethereum,
@@ -67,7 +68,7 @@ mod test {
 
         assert_eq!(
             prepared_txs[0].value,
-            U256::from_dec_str("1000000000000000000").expect("===========> Error parsing U256")
+            U256::from_dec_str("1000000000000000000").unwrap()
         );
     }
 }

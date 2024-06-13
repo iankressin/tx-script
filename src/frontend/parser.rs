@@ -17,12 +17,13 @@ pub struct TransactionIR {
 #[grammar = "src/frontend/grammar.pest"]
 // TODO: this name is really bad, change it
 pub struct TxLangParser<'a> {
-    txs: Vec<TransactionIR>,
+    // TODO: maybe it's worth to change build_ir to return a Vec<TransactionIR>
+    pub txs: Vec<TransactionIR>,
     source: &'a str,
 }
 
 impl<'a> TxLangParser<'a> {
-    fn new(source: &'a str) -> Self {
+    pub fn new(source: &'a str) -> Self {
         TxLangParser {
             txs: Vec::new(),
             source,
@@ -33,7 +34,7 @@ impl<'a> TxLangParser<'a> {
     /// present in the file.
     /// Pest yield an iterator with all lexemes an its respective types. This function
     /// builds from those lexemes a [`TransactionIR`], for each transaction
-    fn build_ir(&mut self) -> Result<(), Box<dyn Error>> {
+    pub fn build_ir(&mut self) -> Result<(), Box<dyn Error>> {
         let pairs = TxLangParser::parse(Rule::tx_list, self.source).unwrap();
 
         for pair in pairs {
@@ -51,7 +52,7 @@ impl<'a> TxLangParser<'a> {
                                 tx.to = TxLangParser::parse_address(inner_pair.as_str());
                             }
                             Rule::available_chains => {
-                                tx.chain = TxLangParser::parse_chain(inner_pair.as_str());
+                                tx.chain = inner_pair.as_str().into();
                             }
                             Rule::unit => {
                                 tx.unit = TxLangParser::parse_unit(inner_pair.as_str());
@@ -86,17 +87,6 @@ impl<'a> TxLangParser<'a> {
         match Address::from_str(str_address) {
             Ok(address) => address,
             Err(_) => panic!("Invalid address: {str_address}"),
-        }
-    }
-
-    fn parse_chain(str_chain: &str) -> Chain {
-        match str_chain {
-            "eth" => Chain::Ethereum,
-            "arb" => Chain::Arbitrum,
-            "base" => Chain::Base,
-            "blast" => Chain::Blast,
-            "optimism" => Chain::Optimism,
-            invalid_chain => panic!("Invalid chain: {invalid_chain}"),
         }
     }
 

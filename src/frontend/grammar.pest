@@ -16,7 +16,14 @@ address          = { "0x" ~ (ASCII_HEX_DIGIT){40} | (ASCII_ALPHANUMERIC)+ ~ ".et
 number           = { float | integer }
 integer          = { (ASCII_DIGIT)+ }
 float            = { integer ~ "." ~ integer }
-available_chains = { "eth" | "arb" | "op" | "base" | "blast" }
+available_chains = {
+    "eth"   | 
+    "arb"   | 
+    "op"    | 
+    "base"  | 
+    "blast" | 
+    "anvil"
+}
 
 // Helpers
 WHITESPACE = _{ " " }
