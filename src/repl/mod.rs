@@ -20,7 +20,7 @@ impl Repl {
         let mut stdout_instance = stdout();
 
         loop {
-            stdout_instance.write_all(b"tx-lang> ")?;
+            stdout_instance.write_all(b"tx-script > ")?;
             stdout_instance.flush()?;
             let tx = self.read();
             self.eval(tx).await?;
