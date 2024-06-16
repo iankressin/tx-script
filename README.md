@@ -33,6 +33,12 @@ TXS comes with a simple REPL sending out transactions. To start the REPL, run th
 ```bash
 txs repl
 ```
+Then you can start sending transactions:
+```bash
+tx-script > send 1 ether to vitalik.eth on eth
+🛫 Sending tx  | to: vitalik.eth, value: 1 ETH, chain: Ethereum
+🛬 Tx included | hash: 0xc4e3…e1db
+```
 
 ## Supported tokens
 - ether (wei | gwei | ether)
