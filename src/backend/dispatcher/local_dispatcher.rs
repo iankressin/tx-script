@@ -34,8 +34,6 @@ impl TransactionDispatcher for LocalDispatcher {
             }
         }
 
-        println!("Done!");
-
         Ok(())
     }
 }
