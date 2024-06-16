@@ -1,3 +1,52 @@
 # TXScript
+A simple, non-turing complete scripting language for sending EVM transactions.
 
-A simple script language for sending EVM transactions.
+## Sentence structure 
+TXS supports a simple sentence structure for sending transactions. The sentence structure is as follows:
+```
+send <amount> <unit | token> to <address> on <chain>
+```
+
+### Example
+```bash
+send 3.1 ether to vitalik.eth on eth
+send 10000000 gwei to 0x1234567890abcdef1234567890abcdef12345678 on base
+```
+
+## Running transactions
+To run a transaction you can use one of the following methods:
+
+### .txs files
+Write your transactions in a `.txs` file:
+```bash
+# payments.txs
+send 1 ether to vitalik.eth on eth
+send 2 ether to joe.eth on base
+```
+And run them using the following command:
+```bash
+txs run payments.txs
+```
+
+### REPL
+TXS comes with a simple REPL sending out transactions. To start the REPL, run the following command:
+```bash
+txs repl
+```
+
+## Supported tokens
+- ether (wei | gwei | ether)
+- dai
+- usdc
+- usdt
+- wbtc
+- weth
+
+## Supported Chains
+- Ethereum (eth)
+- Arbitrum (arb)
+- Optimism (op)
+- Blast (blast)
+- Base (base)
+- BNB Smart Chain (bnb
+- Anvil (anvil)
