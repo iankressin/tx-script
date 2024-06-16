@@ -10,6 +10,7 @@ use backend::{
 };
 use clap::Parser;
 use cli::Arguments;
+use common::signer::TxSigner;
 use frontend::parser::TxLangParser;
 use repl::Repl;
 
@@ -32,6 +33,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         cli::Subcommands::Repl => {
             let repl = Repl::new();
             repl.run().await?;
+        }
+        cli::Subcommands::SetPk(set_pk_args) => {
+            TxSigner::new().set_pk(&set_pk_args.pk);
         }
     }
 

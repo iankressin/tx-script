@@ -1,10 +1,10 @@
 use super::tx_dispatcher::TransactionDispatcher;
 use crate::{backend::prepared_transaction::PreparedTransaction, common::chain::Chain};
 use async_trait::async_trait;
-use ethers::prelude::*;
-use std::{env, error::Error, str::FromStr};
+use ethers::{prelude::*, signers::Signer};
+use std::error::Error;
+use crate::common::signer::TxSigner;
 
-const SIGNER_PK_PATH: &'static str = ".tx-lang/signer.pk";
 
 type LocalWalletMiddleware = SignerMiddleware<Provider<Http>, LocalWallet>;
 
@@ -41,7 +41,7 @@ impl TransactionDispatcher for LocalDispatcher {
 impl LocalDispatcher {
     pub fn new(signer_pk: Option<&str>) -> Self {
         LocalDispatcher {
-            wallet: LocalDispatcher::get_local_wallet(signer_pk),
+            wallet: TxSigner::new().get_local_wallet(signer_pk),
         }
     }
 
@@ -63,36 +63,6 @@ impl LocalDispatcher {
             None => Err(Box::new(ProviderError::CustomError(String::from(
                 "Tx receipt not found",
             )))),
-        }
-    }
-
-    fn get_signer_pk_from_system() -> String {
-        match env::var("HOME") {
-            Ok(home) => std::fs::read_to_string(format!("{}/{}", home, SIGNER_PK_PATH))
-                .unwrap()
-                .trim()
-                .to_string(),
-            Err(_) => {
-                panic!(
-                    "Unable to load signer. Ensure that the signer is present in the correct path."
-                )
-            }
-        }
-    }
-
-    fn get_local_wallet(signer_pk: Option<&str>) -> LocalWallet {
-        match signer_pk {
-            Some(pk) => LocalWallet::from_str(&pk).unwrap(),
-            None => {
-                let pk = &LocalDispatcher::get_signer_pk_from_system();
-
-                match LocalWallet::from_str(pk) {
-                    Ok(wallet) => wallet,
-                    Err(e) => {
-                        panic!("Unable to load signer: {}", e);
-                    }
-                }
-            }
         }
     }
 

@@ -19,9 +19,17 @@ pub enum Subcommands {
 
     #[clap(name = "repl", about = "Starts a REPL to run transactions")]
     Repl,
+    
+    #[clap(name = "set-pk", about = "Set the private key to sign transactions")]
+    SetPk(SetPkArgs),
 }
 
 #[derive(Debug, Parser)]
 pub struct RunArgs {
     pub file: String,
+}
+
+#[derive(Debug, Parser)]
+pub struct SetPkArgs {
+    pub pk: String,
 }
