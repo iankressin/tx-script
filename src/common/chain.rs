@@ -43,8 +43,8 @@ impl From<&str> for Chain {
     }
 }
 
-impl From<Chain> for u64 {
-    fn from(value: Chain) -> Self {
+impl From<&Chain> for u64 {
+    fn from(value: &Chain) -> Self {
         match value {
             Chain::Ethereum => 1,
             Chain::Arbitrum => 42161,

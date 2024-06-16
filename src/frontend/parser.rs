@@ -70,18 +70,6 @@ impl<'a> TxLangParser<'a> {
         Ok(())
     }
 
-    fn parse_number(pair: Pair<Rule>) -> f64 {
-        let str_number = pair.as_str();
-        // TODO: handle unwrap
-        let inner_pair = pair.into_inner().next().unwrap();
-
-        return match inner_pair.as_rule() {
-            Rule::integer => inner_pair.as_str().trim().parse::<u64>().unwrap() as f64,
-            Rule::float => inner_pair.as_str().parse::<f64>().unwrap(),
-            _ => panic!("Invalid number: {str_number}"),
-        };
-    }
-
     /// TODO: implement ens name resolution
     fn parse_address(str_address: &str) -> Address {
         match Address::from_str(str_address) {

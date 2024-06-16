@@ -1,1 +1,3 @@
-send 1 ether to 0xadcdf1cc67362d0d61ad8954d077b78a1d80087b on anvil;
+send 1 ether to 0xadcdf1cc67362d0d61ad8954d077b78a1d80087b on anvil
+send 0.1 ether to 0xadcdf1cc67362d0d61ad8954d077b78a1d80087b on anvil
+send 2.1 ether to 0xadcdf1cc67362d0d61ad8954d077b78a1d80087b on anvil

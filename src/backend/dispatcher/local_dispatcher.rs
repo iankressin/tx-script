@@ -2,38 +2,39 @@ use super::tx_dispatcher::TransactionDispatcher;
 use crate::{backend::prepared_transaction::PreparedTransaction, common::chain::Chain};
 use async_trait::async_trait;
 use ethers::prelude::*;
-use futures::future::TryJoinAll;
 use std::{env, error::Error, str::FromStr};
 
 const SIGNER_PK_PATH: &'static str = ".tx-lang/signer.pk";
 
+type LocalWalletMiddleware = SignerMiddleware<Provider<Http>, LocalWallet>;
+
+/// TODO: This abstraction over local wallet is bad. Maybe wallet should be abstracted ove
+/// a trait with a send_transaction method.
+/// In this way will be easier to test and to change the wallet implementation.
 pub struct LocalDispatcher {
     wallet: LocalWallet,
 }
 
 #[async_trait]
 impl TransactionDispatcher for LocalDispatcher {
-    async fn dispatch(&self, tx: Vec<PreparedTransaction>) -> Result<(), Box<dyn Error>> {
-        tx.into_iter()
-            .map(|t| {
-                let middleware = self.get_signer_middleware(&t.chain);
-                let tx_request = self.parse_transaction(t);
-                println!("Sending tx: {:#?}", tx_request);
+    async fn dispatch(&self, txs: Vec<PreparedTransaction>) -> Result<(), Box<dyn Error>> {
+        for tx in txs {
+            println!("🛫 Sending tx  | {}", tx);
 
-                tokio::spawn(async move {
-                    // TODO: handle error
-                    let pending_tx = middleware.send_transaction(tx_request, None).await;
+            let middleware = self.get_signer_middleware(&tx.chain);
+            let tx_request = self.into_tx_request(tx);
 
-                    match pending_tx {
-                        Ok(tx) => tx.await,
-                        Err(e) => {
-                            panic!("Error sending tx: {:#?}", e);
-                        }
-                    }
-                })
-            })
-            .collect::<TryJoinAll<_>>()
-            .await?;
+            match LocalDispatcher::send_transaction(tx_request, middleware).await {
+                Ok(receipt) => {
+                    println!("🛬 Tx included | hash: {} \n", receipt.transaction_hash);
+                }
+                Err(e) => {
+                    println!("❌ Error while sending tx: {} \n", e);
+                }
+            }
+        }
+
+        println!("Done!");
 
         Ok(())
     }
@@ -43,6 +44,27 @@ impl LocalDispatcher {
     pub fn new(signer_pk: Option<&str>) -> Self {
         LocalDispatcher {
             wallet: LocalDispatcher::get_local_wallet(signer_pk),
+        }
+    }
+
+    async fn send_transaction(
+        tx_request: TransactionRequest,
+        middleware: LocalWalletMiddleware,
+    ) -> Result<TransactionReceipt, Box<dyn Error>> {
+        let pending_tx = middleware
+            .send_transaction(tx_request, None)
+            .await
+            .map_err(|e| Box::new(e) as Box<dyn Error>)?;
+
+        let receipt = pending_tx
+            .await
+            .map_err(|e| Box::new(e) as Box<dyn Error>)?;
+
+        match receipt {
+            Some(r) => Ok(r.clone()),
+            None => Err(Box::new(ProviderError::CustomError(String::from(
+                "Tx receipt not found",
+            )))),
         }
     }
 
@@ -66,8 +88,6 @@ impl LocalDispatcher {
             None => {
                 let pk = &LocalDispatcher::get_signer_pk_from_system();
 
-                println!("Signer pk: {} | Len: {}", pk, pk.len());
-
                 match LocalWallet::from_str(pk) {
                     Ok(wallet) => wallet,
                     Err(e) => {
@@ -78,7 +98,7 @@ impl LocalDispatcher {
         }
     }
 
-    pub fn parse_transaction(&self, tx: PreparedTransaction) -> TransactionRequest {
+    pub fn into_tx_request(&self, tx: PreparedTransaction) -> TransactionRequest {
         TransactionRequest {
             from: Some(self.wallet.address()),
             to: Some(tx.to.into()),
@@ -93,15 +113,11 @@ impl LocalDispatcher {
     }
 
     /// TODO - Cache
-    pub fn get_signer_middleware(
-        &self,
-        chain: &Chain,
-    ) -> SignerMiddleware<Provider<Http>, LocalWallet> {
+    pub fn get_signer_middleware(&self, chain: &Chain) -> LocalWalletMiddleware {
         let rpc_url = chain.rpc_url();
         let provider =
             Provider::<Http>::try_from(rpc_url).expect("Unable to connect to the provider");
-        self.wallet.with_chain_id(chain);
-        SignerMiddleware::new(provider, self.wallet.clone())
+        SignerMiddleware::new(provider, self.wallet.clone().with_chain_id(chain))
     }
 }
 
@@ -135,6 +151,6 @@ mod test {
         };
         let dispatcher = LocalDispatcher::new(Some(SIGNER_PRIVATE));
 
-        assert_eq!(dispatcher.parse_transaction(tx), expected);
+        assert_eq!(dispatcher.into_tx_request(tx), expected);
     }
 }
