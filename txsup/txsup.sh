@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# https://github.com/iankressin/tx-script/releases/download/0.1.0-beta/x86_64-unknown-linux-musl.zip
-
 USERNAME="iankressin"
 REPO_NAME="tx-script"
 REPO_URL="https://github.com/{$USERNAME}/${REPO_NAME}"
