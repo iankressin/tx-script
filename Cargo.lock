@@ -3418,7 +3418,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tx-lang"
+name = "tx-script"
 version = "0.1.0"
 dependencies = [
  "async-trait",

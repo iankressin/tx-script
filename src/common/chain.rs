@@ -1,5 +1,7 @@
 use ethers::types::U64;
 
+use super::scanner::Scanner;
+
 #[derive(Debug, PartialEq, Eq)]
 pub enum Chain {
     Ethereum,
@@ -65,6 +67,17 @@ impl Chain {
             Chain::Blast => "https://blast.infura.io/v3/",
             Chain::Optimism => "https://optimism.infura.io/v3/",
             Chain::Anvil => "http://localhost:8545/",
+        }
+    }
+
+    pub fn scanner(&self) -> Scanner {
+        match self {
+            Chain::Ethereum => Scanner::new(String::from("https://etherscan.io")),
+            Chain::Arbitrum => Scanner::new(String::from("https://arbiscan.io")),
+            Chain::Base => Scanner::new(String::from("https://basescan.org")),
+            Chain::Blast => Scanner::new(String::from("https://blastscan.io")),
+            Chain::Optimism => Scanner::new(String::from("https://optimism.com")),
+            Chain::Anvil => Scanner::new(String::from("http://localhost:8545")),
         }
     }
 }
