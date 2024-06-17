@@ -40,7 +40,28 @@ tx-script > send 1 ether to vitalik.eth on eth
 🛬 Tx included | hash: 0xc4e3…e1db
 ```
 
-## Supported tokens
+## Installation
+First, you should install `txsup`, the TXScript version manager. You can do this by running the following command:
+```bash
+curl https://raw.githubusercontent.com/iankressin/tx-script/main/txsup/install.sh | sh
+````
+
+Then you can install the latest version of TXScript by running the following command:
+```bash
+txsup
+```
+
+### Updating TXScript
+To update TXScript to the latest version, you can simply run `txsup` again:
+```bash
+txsup
+```
+
+## Support
+
+### Tokens
+The following tokens are supported for the production of `<unit | token>`:
+
 - ether (wei | gwei | ether)
 - dai
 - usdc
@@ -48,11 +69,13 @@ tx-script > send 1 ether to vitalik.eth on eth
 - wbtc
 - weth
 
-## Supported Chains
+### Chains
+The following chains are supported for the production of `<chain>`:
+
 - Ethereum (eth)
 - Arbitrum (arb)
 - Optimism (op)
 - Blast (blast)
 - Base (base)
-- BNB Smart Chain (bnb
+- BNB Smart Chain (bnb)
 - Anvil (anvil)
