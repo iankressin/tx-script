@@ -1,10 +1,10 @@
 use super::tx_dispatcher::TransactionDispatcher;
+use crate::common::signer::TxSigner;
 use crate::{backend::prepared_transaction::PreparedTransaction, common::chain::Chain};
+use abi::AbiEncode;
 use async_trait::async_trait;
 use ethers::{prelude::*, signers::Signer};
 use std::error::Error;
-use crate::common::signer::TxSigner;
-
 
 type LocalWalletMiddleware = SignerMiddleware<Provider<Http>, LocalWallet>;
 
@@ -19,17 +19,26 @@ pub struct LocalDispatcher {
 impl TransactionDispatcher for LocalDispatcher {
     async fn dispatch(&self, txs: Vec<PreparedTransaction>) -> Result<(), Box<dyn Error>> {
         for tx in txs {
-            println!("🛫 Sending tx  | {}", tx);
+            println!("📡 Sending transaction  | {}", tx);
 
+            let chain_scanner = tx.chain.scanner();
             let middleware = self.get_signer_middleware(&tx.chain);
             let tx_request = self.into_tx_request(tx);
 
             match LocalDispatcher::send_transaction(tx_request, middleware).await {
                 Ok(receipt) => {
-                    println!("🛬 Tx included | hash: {} \n", receipt.transaction_hash);
+                    println!("✅ Transaction included");
+                    println!(
+                        "🔗 Transaction hash: {}",
+                        format!("{}", receipt.transaction_hash.encode_hex())
+                    );
+                    println!(
+                        "🌐 Transaction URL: {} \n",
+                        chain_scanner.get_tx_url(&receipt.transaction_hash.encode_hex())
+                    );
                 }
                 Err(e) => {
-                    println!("❌ Error while sending tx: {} \n", e);
+                    println!("❌ Error while sending transaction: {} \n", e);
                 }
             }
         }
