@@ -8,7 +8,6 @@ jobs:
   release:
     name: release ${{ matrix.target }} (with non-required env)
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
     strategy:
       fail-fast: false
       matrix:
@@ -24,7 +23,7 @@ jobs:
       - name: Compile and release
         uses: rust-build/rust-build.action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         with:
           RUSTTARGET: ${{ matrix.target }}
           EXTRA_FILES: "README.md LICENSE"
