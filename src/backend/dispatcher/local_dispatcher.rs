@@ -3,7 +3,7 @@ use crate::common::signer::TxSigner;
 use crate::{backend::prepared_transaction::PreparedTransaction, common::chain::Chain};
 use abi::AbiEncode;
 use async_trait::async_trait;
-use ethers::{prelude::*, signers::Signer};
+use ethers::prelude::*;
 use std::error::Error;
 
 type LocalWalletMiddleware = SignerMiddleware<Provider<Http>, LocalWallet>;
@@ -76,30 +76,37 @@ impl LocalDispatcher {
     }
 
     pub fn into_tx_request(&self, tx: PreparedTransaction) -> TransactionRequest {
+        let data = if tx.data.is_empty() {
+            None
+        } else {
+            Some(tx.data)
+        };
+
         TransactionRequest {
             from: Some(self.wallet.address()),
             to: Some(tx.to.into()),
             value: Some(tx.value.into()),
             chain_id: Some(tx.chain.into()),
+            data,
 
             gas: None,
             gas_price: None,
-            data: None,
             nonce: None,
         }
     }
 
     /// TODO - Cache
     pub fn get_signer_middleware(&self, chain: &Chain) -> LocalWalletMiddleware {
-        let rpc_url = chain.rpc_url();
         let provider =
-            Provider::<Http>::try_from(rpc_url).expect("Unable to connect to the provider");
+            Provider::<Http>::try_from(chain.rpc_url()).expect("Unable to connect to the provider");
         SignerMiddleware::new(provider, self.wallet.clone().with_chain_id(chain))
     }
 }
 
 #[cfg(test)]
 mod test {
+    use futures::TryFutureExt;
+
     use super::*;
 
     const TO: &'static str = "0xadcdf1cc67362d0d61ad8954d077b78a1d80087b";
@@ -110,11 +117,12 @@ mod test {
     #[test]
     fn test_parse_prepared_transaction_to_transaction_request() {
         let to = TO.parse::<Address>().unwrap();
-        let tx = PreparedTransaction {
+        let tx = PreparedTransaction::new(
             to,
-            value: U256::from_dec_str("1000000000000000000").unwrap(),
-            chain: Chain::Ethereum,
-        };
+            U256::from_dec_str("1000000000000000000").unwrap(),
+            Chain::Ethereum,
+            Bytes::new(),
+        );
         let expected = TransactionRequest {
             from: Some(SIGNER_PUBLIC.parse::<Address>().unwrap()),
             to: Some(NameOrAddress::Address(to)),

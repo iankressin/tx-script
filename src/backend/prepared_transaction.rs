@@ -1,19 +1,24 @@
-use core::fmt;
-use std::fmt::{Display, Formatter};
-
 use crate::common::chain::Chain;
-use ethers::types::{Address, U256};
+use core::fmt;
+use ethers::types::{Address, Bytes, U256};
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct PreparedTransaction {
     pub to: Address,
     pub value: U256,
     pub chain: Chain,
+    pub data: Bytes,
 }
 
 impl PreparedTransaction {
-    pub fn new(to: Address, value: U256, chain: Chain) -> Self {
-        PreparedTransaction { to, value, chain }
+    pub fn new(to: Address, value: U256, chain: Chain, data: Bytes) -> Self {
+        PreparedTransaction {
+            to,
+            value,
+            chain,
+            data,
+        }
     }
 }
 

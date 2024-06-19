@@ -3,26 +3,27 @@
 tx_list = _{ tx{1, } }
 
 // Non-terminals
-tx     = {
+tx     =  {
     value ~ WHITESPACE* ~ target ~ WHITESPACE* ~ chain ~ NEW_LINE*
 }
-value  = _{ "send" ~ WHITESPACE* ~ number ~ WHITESPACE* ~ unit }
+value  = _{ "send" ~ WHITESPACE* ~ number ~ WHITESPACE* ~ (unit | token) }
 target = _{ "to" ~ WHITESPACE* ~ address }
 chain  = _{ "on" ~ WHITESPACE* ~ available_chains }
 
 // Terminals
 unit             = { "ether" | "gwei" | "wei" }
+token            = { "dai" | "usdc" | "usdt" | "wbtc" | "weth" }
 address          = { "0x" ~ (ASCII_HEX_DIGIT){40} | (ASCII_ALPHANUMERIC)+ ~ ".eth" }
 number           = { float | integer }
 integer          = { (ASCII_DIGIT)+ }
 float            = { integer ~ "." ~ integer }
 available_chains = {
-    "eth"   | 
-    "arb"   | 
-    "op"    | 
-    "base"  | 
-    "blast" | 
-    "anvil"
+    "eth"
+  | "arb"
+  | "op"
+  | "base"
+  | "blast"
+  | "anvil"
 }
 
 // Helpers

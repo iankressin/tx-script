@@ -1,15 +1,28 @@
-use crate::common::{chain::Chain, unit::Unit};
-use ethers::types::Address;
-use pest::{iterators::Pair, Parser};
+use crate::common::{chain::Chain, token::Token, unit::Unit};
+use ethers::types::{Address, Bytes};
+use pest::Parser;
 use pest_derive::Parser;
-use std::{error::Error, str::FromStr, u64};
+use std::{error::Error, str::FromStr};
+
+// TODO: move this to common module
+#[derive(Debug, PartialEq, Eq)]
+pub enum UnitOrToken {
+    Unit(Unit),
+    Token(Token),
+}
+
+impl Default for UnitOrToken {
+    fn default() -> Self {
+        UnitOrToken::Unit(Unit::Ether)
+    }
+}
 
 #[derive(Default, Debug, PartialEq)]
 pub struct TransactionIR {
     pub to: Address,
     // String makes it easier to parse the amount to its unit using [`parse_units`]
     pub amount: String,
-    pub unit: Unit,
+    pub unit: UnitOrToken,
     pub chain: Chain,
 }
 
@@ -54,6 +67,9 @@ impl<'a> TxLangParser<'a> {
                             Rule::available_chains => {
                                 tx.chain = inner_pair.as_str().into();
                             }
+                            Rule::token => {
+                                tx.unit = TxLangParser::parse_token(inner_pair.as_str());
+                            }
                             Rule::unit => {
                                 tx.unit = TxLangParser::parse_unit(inner_pair.as_str());
                             }
@@ -78,11 +94,22 @@ impl<'a> TxLangParser<'a> {
         }
     }
 
-    fn parse_unit(str_unit: &str) -> Unit {
+    fn parse_token(str_token: &str) -> UnitOrToken {
+        match str_token {
+            "usdc" => UnitOrToken::Token(Token::Usdc),
+            "usdt" => UnitOrToken::Token(Token::Usdt),
+            "dai" => UnitOrToken::Token(Token::Dai),
+            "wbtc" => UnitOrToken::Token(Token::Wbtc),
+            "weth" => UnitOrToken::Token(Token::WEth),
+            invalid_token => panic!("Invalid token: {invalid_token}"),
+        }
+    }
+
+    fn parse_unit(str_unit: &str) -> UnitOrToken {
         match str_unit {
-            "gwei" => Unit::Gwei,
-            "wei" => Unit::Wei,
-            "ether" => Unit::Ether,
+            "gwei" => UnitOrToken::Unit(Unit::Gwei),
+            "wei" => UnitOrToken::Unit(Unit::Wei),
+            "ether" => UnitOrToken::Unit(Unit::Ether),
             invalid_unit => panic!("Invalid unit: {invalid_unit}"),
         }
     }
@@ -104,7 +131,7 @@ mod test {
         let expected_tx = TransactionIR {
             to: Address::from_str("0xadcdf1cc67362d0d61ad8954d077b78a1d80087b").unwrap(),
             amount: String::from("1"),
-            unit: Unit::Ether,
+            unit: UnitOrToken::Unit(Unit::Ether),
             chain: Chain::Ethereum,
         };
 
@@ -121,19 +148,34 @@ mod test {
             TransactionIR {
                 to: Address::from_str("0xadcdf1cc67362d0d61ad8954d077b78a1d80087b").unwrap(),
                 amount: String::from("1"),
-                unit: Unit::Gwei,
+                unit: UnitOrToken::Unit(Unit::Gwei),
                 chain: Chain::Base,
             },
             TransactionIR {
                 to: Address::from_str("0xadcdf1cc67362d0d61ad8954d077b78a1d80087b").unwrap(),
                 amount: String::from("2.0"),
-                unit: Unit::Ether,
+                unit: UnitOrToken::Unit(Unit::Ether),
                 chain: Chain::Ethereum,
             },
         ];
 
         assert_eq!(parser.txs.len(), 2);
         assert_eq!(parser.txs, expected_txs);
+    }
+
+    #[test]
+    fn parse_token() {
+        let program = "send 10 usdc to 0xadcdf1cc67362d0d61ad8954d077b78a1d80087b on eth";
+        let mut parser = TxLangParser::new(program);
+        parser.build_ir().unwrap();
+        let expected_txs = TransactionIR {
+            to: Address::from_str("0xadcdf1cc67362d0d61ad8954d077b78a1d80087b").unwrap(),
+            amount: String::from("10"),
+            unit: UnitOrToken::Token(Token::Usdc),
+            chain: Chain::Ethereum,
+        };
+
+        assert_eq!(parser.txs[0], expected_txs);
     }
 
     #[test]
