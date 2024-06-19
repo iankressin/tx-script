@@ -27,6 +27,7 @@ And run them using the following command:
 ```bash
 txs run payments.txs
 ```
+https://github.com/iankressin/tx-script/assets/29215044/fb04839b-c0bf-46a3-ba9a-69eceb2753b8
 
 ### REPL
 TXS comes with a simple REPL sending out transactions. To start the REPL, run the following command:
@@ -36,9 +37,12 @@ txs repl
 Then you can start sending transactions:
 ```bash
 tx-script > send 1 ether to vitalik.eth on eth
-🛫 Sending tx  | to: vitalik.eth, value: 1 ETH, chain: Ethereum
-🛬 Tx included | hash: 0xc4e3…e1db
+📡 Sending transaction  | to: vitalik.eth, value: 1 ETH, chain: Anvil
+✅ Transaction included
+🔗 Transaction hash: 0x1f9e8b16e4aaaf9b1041859649d84999cb2a831bcacdff3719cd53a6c8e6b52d
+🌐 Transaction URL: http://localhost:8545/tx/0x1f9e8b16e4aaaf9b1041859649d84999cb2a831bcacdff3719cd53a6c8e6b52d
 ```
+https://github.com/iankressin/tx-script/assets/29215044/1aac497d-ad9e-4dc1-8a79-51d6da2f6915
 
 ## Installation
 First, you should install `txsup`, the TXScript version manager. You can do this by running the following command:
@@ -56,6 +60,14 @@ To update TXScript to the latest version, you can simply run `txsup` again:
 ```bash
 txsup
 ```
+
+### Setting up a private key
+In order to sign the transactions, TXScript needs to set a private key locally.
+```bash
+txs set-pk <PRIVATE_KEY>
+```
+
+Needless to say that you should never use a private key of a wallet that you care about
 
 ## Support
 
