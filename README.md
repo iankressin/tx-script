@@ -75,7 +75,5 @@ The following chains are supported for the production of `<chain>`:
 - Ethereum (eth)
 - Arbitrum (arb)
 - Optimism (op)
-- Blast (blast)
 - Base (base)
-- BNB Smart Chain (bnb)
 - Anvil (anvil)

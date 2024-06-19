@@ -7,7 +7,6 @@ pub enum Chain {
     Ethereum,
     Arbitrum,
     Base,
-    Blast,
     Optimism,
     Anvil,
 }
@@ -24,7 +23,6 @@ impl From<Chain> for U64 {
             Chain::Ethereum => 1.into(),
             Chain::Arbitrum => 42161.into(),
             Chain::Base => 8453.into(),
-            Chain::Blast => 238.into(),
             Chain::Optimism => 10.into(),
             Chain::Anvil => 31337.into(),
         }
@@ -37,7 +35,6 @@ impl From<&str> for Chain {
             "eth" => Chain::Ethereum,
             "arb" => Chain::Arbitrum,
             "base" => Chain::Base,
-            "blast" => Chain::Blast,
             "optimism" => Chain::Optimism,
             "anvil" => Chain::Anvil,
             invalid_chain => panic!("Invalid chain: {invalid_chain}"),
@@ -51,7 +48,6 @@ impl From<&Chain> for u64 {
             Chain::Ethereum => 1,
             Chain::Arbitrum => 42161,
             Chain::Base => 8453,
-            Chain::Blast => 238,
             Chain::Optimism => 10,
             Chain::Anvil => 31337,
         }
@@ -64,7 +60,6 @@ impl Chain {
             Chain::Ethereum => "https://mainnet.infura.io/v3/",
             Chain::Arbitrum => "https://arbitrum.infura.io/v3/",
             Chain::Base => "https://base.infura.io/v3/",
-            Chain::Blast => "https://blast.infura.io/v3/",
             Chain::Optimism => "https://optimism.infura.io/v3/",
             Chain::Anvil => "http://localhost:8545/",
         }
@@ -75,7 +70,6 @@ impl Chain {
             Chain::Ethereum => Scanner::new(String::from("https://etherscan.io")),
             Chain::Arbitrum => Scanner::new(String::from("https://arbiscan.io")),
             Chain::Base => Scanner::new(String::from("https://basescan.org")),
-            Chain::Blast => Scanner::new(String::from("https://blastscan.io")),
             Chain::Optimism => Scanner::new(String::from("https://optimism.com")),
             Chain::Anvil => Scanner::new(String::from("http://localhost:8545")),
         }
