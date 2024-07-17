@@ -1,5 +1,5 @@
 # TXScript
-A simple, non-turing complete scripting language for sending EVM transactions.
+A simple, non-turing complete, sql-like language for sending EVM transactions.
 
 ## Sentence structure 
 TXS supports a simple sentence structure for sending transactions. The sentence structure is as follows:
